@@ -1,28 +1,26 @@
-let menuIcon = document.querySelector('#menu-icon');
-let navbar = document.querySelector('.navbar');
-let sections = document.querySelectorAll('section');
-let navLinks = document.querySelectorAll('header nav a');
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, push, get } from "firebase/database";
+import { getAnalytics } from "firebase/analytics";
 
-window.onscroll = () => {
-    sections.forEach(sec => {
-        let top = window.scrollY;
-        let offset = sec.offsetTop - 150;
-        let height = sec.offsetHeight;
-        let id = sec.getAttribute('id');
-
-        if (top >= offset && top <= offset + height) {  // Fixed the comparison
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                document.querySelector(`header nav a[href*='${id}']`).classList.add('active');
-            });
-        }
-    });
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCKi3owg3WD6FlApyftqLsl0LEadGYM7Yk",
+  authDomain: "my-comment-d816f.firebaseapp.com",
+  databaseURL: "https://my-comment-d816f-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "my-comment-d816f",
+  storageBucket: "my-comment-d816f.firebasestorage.app",
+  messagingSenderId: "444552815409",
+  appId: "1:444552815409:web:2955f355d76f296bd88610",
+  measurementId: "G-143RDLHH60"
 };
 
-menuIcon.onclick = () => {
-    menuIcon.classList.toggle('bx-x');
-    navbar.classList.toggle('active');
-};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+// Initialize Firebase Realtime Database
+const database = getDatabase(app);
 
 // Get the form and comments section elements
 const form = document.getElementById('contactForm');
@@ -30,84 +28,65 @@ const commentsList = document.getElementById('commentsList');
 
 // Add an event listener to handle form submission
 form.addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent the form from refreshing the page
+  event.preventDefault(); // Prevent the form from refreshing the page
 
-    // Get input values
-    const fullName = document.getElementById('fullName').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const subject = document.getElementById('subject').value.trim();
-    const message = document.getElementById('message').value.trim();
+  // Get input values
+  const fullName = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const message = document.getElementById('message').value.trim();
 
-    // Validate inputs
-    if (!fullName || !email || !message) {
-        alert('Please fill out all required fields.');
-        return;
-    }
+  // Validate inputs
+  if (!fullName || !email || !message) {
+    alert('Please fill out all required fields.');
+    return;
+  }
 
-    // Create a new comment item for the DOM (this is temporary)
-    const commentItem = document.createElement('li');
-    commentItem.classList.add('comment-text');
-    commentItem.innerHTML = `
-        <strong>${fullName} (${email})</strong>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p><strong>Message:</strong> ${message}</p>
-        <button class="deleteBtn">Delete</button>
-    `;
+  // Create a new comment object
+  const commentData = {
+    fullName,
+    email,
+    subject,
+    message,
+    timestamp: Date.now()
+  };
 
-    // Add event listener to the delete button
-    const deleteBtn = commentItem.querySelector('.deleteBtn');
-    deleteBtn.addEventListener('click', () => {
-        commentsList.removeChild(commentItem);
-        // Here we should also delete it from Firebase, I'll explain below
-    });
-
-    // Append the comment to the list
-    commentsList.appendChild(commentItem);
-
-    // Save comment to Firebase
-    const commentData = {
-        fullName,
-        email,
-        subject,
-        message,
-        timestamp: Date.now()
-    };
-
-    // Save comment to Firebase database
-    firebase.database().ref('comments').push(commentData).then(() => {
-        alert('Comment saved successfully!');
-        form.reset();
-        loadComments(); // Refresh comments after saving
-    });
+  // Save the comment to Firebase
+  const commentsRef = ref(database, 'comments');
+  push(commentsRef, commentData).then(() => {
+    alert('Comment saved successfully!');
+    form.reset();
+    loadComments(); // Refresh comments
+  }).catch((error) => {
+    console.error('Error saving comment: ', error);
+  });
 });
 
 // Load Comments from Firebase
 const loadComments = () => {
-    commentsList.innerHTML = ''; // Clear existing comments
-    firebase.database().ref('comments').once('value', (snapshot) => {
-        snapshot.forEach((childSnapshot) => {
-            const comment = childSnapshot.val();
-            const commentItem = document.createElement('li');
-            commentItem.classList.add('comment-text');
-            commentItem.innerHTML = `
-                <strong>${comment.fullName} (${comment.email})</strong>
-                <p><strong>Subject:</strong> ${comment.subject}</p>
-                <p><strong>Message:</strong> ${comment.message}</p>
-                <button class="deleteBtn">Delete</button>
-            `;
-            commentsList.appendChild(commentItem);
+  const commentsList = document.getElementById('commentsList');
+  commentsList.innerHTML = ''; // Clear existing comments
 
-            // Add delete button event listener for Firebase
-            const deleteBtn = commentItem.querySelector('.deleteBtn');
-            deleteBtn.addEventListener('click', () => {
-                // Remove from DOM
-                commentsList.removeChild(commentItem);
-
-                // Delete from Firebase
-                firebase.database().ref('comments').child(childSnapshot.key).remove();
-            });
-        });
-    });
+  const commentsRef = ref(database, 'comments');
+  get(commentsRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnapshot) => {
+        const comment = childSnapshot.val();
+        const commentItem = document.createElement('li');
+        commentItem.classList.add('comment-text');
+        commentItem.innerHTML = `
+          <strong>${comment.fullName} (${comment.email})</strong>
+          <p><strong>Subject:</strong> ${comment.subject}</p>
+          <p><strong>Message:</strong> ${comment.message}</p>
+        `;
+        commentsList.appendChild(commentItem);
+      });
+    } else {
+      commentsList.innerHTML = '<li>No comments available.</li>';
+    }
+  }).catch((error) => {
+    console.error('Error loading comments: ', error);
+  });
 };
 
 // Load comments on page load
