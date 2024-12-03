@@ -22,12 +22,12 @@ body{
     background: var(--bg-color);
     color: var(--text-color);
 }
-.header{
+.header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 4rem 12% 4rem;
+    padding: 4rem 12%;
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     display: flex;
@@ -35,25 +35,20 @@ body{
     align-items: center;
     z-index: 5;
 }
-.logo{
+
+.logo {
     font-size: 3rem;
     color: var(--text-color);
     font-weight: 800;
     cursor: pointer;
     transition: 0.3s ease;
-    -webkit-transition: 0.3s ease;
-    -moz-transition: 0.3s ease;
-    -ms-transition: 0.3s ease;
-    -o-transition: 0.3s ease;
 }
-.logo:hover{
+
+.logo:hover {
     transform: scale(1.1);
-    -webkit-transform: scale(1.1);
-    -moz-transform: scale(1.1);
-    -ms-transform: scale(1.1);
-    -o-transform: scale(1.1);
 }
-.logo span{
+
+.logo span {
     text-shadow: 0 0 25px var(--main-color);
 }
 .navbar a{
@@ -585,6 +580,51 @@ span{
     justify-content: center;
     flex-wrap: wrap;
 }
+ /* Comment Section Styles */
+ #commentsSection {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  #commentsList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #commentsList li {
+    background: #0c0c0c;
+    margin: 10px auto;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    max-width: 500px;
+    text-align: left;
+    position: relative;
+  }
+
+  #commentsList li button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgb(5, 5, 5);
+    color: rgb(243, 239, 239);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+
+  #commentsList li button:hover {
+    background-color: rgb(238, 11, 11);
+  }
+
+  /* New Font-Size CSS */
+  .comment-text {
+    font-size: 16px;
+  }
 .contact form .input-box input, 
 .contact form textarea {
     width: 100%;
@@ -672,7 +712,7 @@ span{
     padding: 0 15px;
 }
 .footer .copyright{
-    margin-top: 50px;
+    margin-top: 40px;
     text-align: center;
     font-size: 16px;
     color: white;
